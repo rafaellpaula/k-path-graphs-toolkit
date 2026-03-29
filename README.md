@@ -1,181 +1,111 @@
-# K-Path Graph Generator
+# k-path-graphs-toolkit
 
-**Optimized generation and analysis of unlabeled k-path graphs with algebraic connectivity computation**
+K-Path Graphs Toolkit: Generator and Analyzer.
 
-## Overview
+This repository contains an implementation for generating pairwise non-isomorphic unlabeled k-path graphs, exporting them in Graph6 format, and computing algebraic connectivity for each generated graph.
 
-This project provides an efficient implementation for generating all non-isomorphic unlabeled k-path graphs and computing their algebraic connectivity (second smallest Laplacian eigenvalue). The work is based on the recursive formula for unlabeled k-path graphs and includes several performance optimizations for large-scale graph generation and analysis.
+The project is organized as a reproducible pipeline:
 
-## Mathematical Foundation
+1. Generate canonical colored sequences for fixed `(k, n)`.
+2. Convert sequences to graphs and export to `.g6`.
+3. Compute algebraic connectivity (`lambda_2`) for each graph.
 
-### Definitions
+## Mathematical Background
 
-- **k-path graph**: An unlabeled graph that can be recognized as a path or a union of disjoint paths, parameterized by a coloring of vertices using colors {1, 2, ..., k}.
-- **T(n,k)**: Total count of non-isomorphic unlabeled k-path graphs with n vertices.
+The counting functions are based on recursive relations used for unlabeled k-path graph enumeration:
 
-### Recurrence Relations
-
-The number of such graphs follows:
-
-```
-M(n,k) = k⋅M(n-2,k) + M(n-3,k-1) + M(n-4,k-2)   n ≥ 2k+2
-N(n,k) = k²⋅N(n-2,k) + (2k-1)⋅N(n-3,k-1) + N(n-4,k-2) + (k(k-1)/2)⋅M(n-2,k) + (k-1)⋅M(n-3,k-1)
-
+```text
+M(n,k) = k*M(n-2,k) + M(n-3,k-1) + M(n-4,k-2)
+N(n,k) = k^2*N(n-2,k) + (2k-1)*N(n-3,k-1) + N(n-4,k-2)
+				 + (k(k-1)/2)*M(n-2,k) + (k-1)*M(n-3,k-1)
 T(n,k) = T(n-1,k-1) + M(n,k) + N(n,k)
 ```
 
-**Algebraic Connectivity**: The second-smallest eigenvalue of the Laplacian matrix, reflecting graph connectivity properties.
+`T(n,k)` is used as a validation target during generation and conversion.
 
-## Project Structure
+## Repository Layout
 
-```
-.
-├── src/                          # Main Python modules
-│   ├── generators.py             # Sequence generation for k-path graphs
-│   ├── converters.py             # Format conversion (TXT → adjacency → G6)
-│   ├── analyzers.py              # Algebraic connectivity analysis
-│   ├── paths.py                  # Path utilities
-│   └── __init__.py               # Package initialization
-│
-├── notebooks/                    # Jupyter notebooks for analysis and examples
-│   └── construct_2_3_4_path_graphs_copia_17-03-26.ipynb
-│
-├── data/                         # Dataset storage (organized by type)
-│   ├── sequences/                # Text files with colored sequence data
-│   │   ├── 2_caminhos/
-│   │   ├── 3_caminhos/
-│   │   └── 4_caminhos/
-│   ├── g6/                       # Graph6 format files
-│   │   ├── 2_caminhos_g6/
-│   │   ├── 3_caminhos_g6/
-│   │   └── 4_caminhos_g6/
-│   └── algebraic_connectivity/  # Computed CA values
-│       ├── CA_2_path_graph/
-│       ├── CA_3_path_graph/
-│       └── CA_4_path_graph/
-│
-├── docs/                         # Documentation (future)
-│
-├── requirements.txt              # Python dependencies
-├── setup.py                      # Package setup
-├── pyproject.toml               # Modern Python packaging (PEP 517/518)
-├── .gitignore                   # Version control rules
-└── README.md                    # This file
+```text
+src/
+	generators.py          sequence generation (list and stream modes)
+	converters.py          TXT -> Graph6 conversion
+	analyzers.py           algebraic connectivity computation
+	paths.py               default output paths
+
+src_fase2/
+	compatibility layer that reexports src/ modules for legacy imports
+
+notebooks/
+	generate_and_analyze_k_path_graphs.ipynb
+
+data/
+	sequences/
+	g6/
+	algebraic_connectivity/
 ```
 
 ## Installation
 
-### From source (development mode)
-
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd k-path-graph-generator
+git clone <your-repository-url>
+cd k-path-graphs-toolkit
 
-# Create virtual environment
 python3 -m venv venv_grafos
-source venv_grafos/bin/activate  # On Windows: venv_grafos\Scripts\activate
+source venv_grafos/bin/activate
 
-# Install dependencies
 pip install -r requirements.txt
-
-# Install package in editable mode
-pip install -e .
-
-# For Jupyter support
-pip install -e ".[jupyter]"
 ```
 
 ## Usage
 
-### As a Python package
+Main reproducible workflow is available in:
+
+`notebooks/generate_and_analyze_k_path_graphs.ipynb`
+
+The notebook is configured for iterative execution (with skip logic), so it can resume partially completed runs.
+
+## Programmatic Example
 
 ```python
-import sys
-sys.path.insert(0, '.')
+from src.generators import T_n_k, gerarSequenciaN_stream
+from src.converters import generateOneG6_stream
+from src.analyzers import verify_algebraic_connectivity_one_stream
 
-from src.generators import generating_all_unlabeled_k_path_graph, T_n_k
-from src.converters import coloredToAdjacence, generateG6Archives
-from src.analyzers import verify_algebraic_connectivity_all
+k = 2
+n = 10
 
-# Generate sequences for k=2, n=10
-sequences = generating_all_unlabeled_k_path_graph(k=2, n=10)
-expected = int(T_n_k(10, 2))
-print(f"Generated {len(sequences)} sequences (expected {expected})")
+expected = int(T_n_k(n, k))
+print(f"Expected objects for (n={n}, k={k}): {expected}")
+
+# 1) sequence generation
+gerarSequenciaN_stream(n, k, "data/sequences/2_caminhos")
+
+# 2) Graph6 conversion
+generateOneG6_stream(n, k, "data/sequences", "data/g6")
+
+# 3) algebraic connectivity
+verify_algebraic_connectivity_one_stream(n, k, "data/g6", "data/algebraic_connectivity")
 ```
 
-### In Jupyter notebooks
+## Output Files
 
-See `notebooks/construct_2_3_4_path_graphs_copia_17-03-26.ipynb` for complete examples including:
-- Baseline benchmarks (Phase 1)
-- Modular integration (Phase 2)
-- Core optimizations validation (Phase 3)
-- Large-scale testing with time limits (Phase 4+)
+- Sequences: `data/sequences/{k}_caminhos/{k}_caminhos_n_{n}_T_{T}.txt`
+- Graph6: `data/g6/{k}_caminhos_g6/{k}_caminhos_n_{n}_T_{T}.g6`
+- Algebraic connectivity: `data/algebraic_connectivity/CA_{k}_path_graph/ca_n_{n}.txt`
+- Consolidated lists: `data/algebraic_connectivity/{k}_CA_lista.txt`
 
-### Command-line Usage
+## Notes on Performance
 
-```bash
-# Activate environment
-source venv_grafos/bin/activate
+- Stream-based functions are recommended for large values of `n`.
+- Runtime and storage grow quickly with `n`, especially for `k=2` at higher orders.
+- The notebook workflow is designed to avoid recomputation of existing outputs.
 
-# Run notebook analysis
-jupyter notebook notebooks/
-```
+## References and Useful Links
 
-## Optimizations
+- Graph6 format reference: http://users.cecs.anu.edu.au/~bdm/data/formats.html
 
-The implementation includes several key performance improvements:
-
-1. **Memoization**: `@lru_cache` on recursive formulas M(n,k), N(n,k), T(n,k)
-2. **Efficient deduplication**: O(1) set-based lookup replacing O(n) list searching
-3. **Stream I/O**: Line-by-line writing for large sequences without in-memory buffering
-4. **Incremental tracking**: Removed redundant slicing and repeated max computations
-
-**Performance**: ~2.5x speedup observed on core generation (baseline → optimized).
-
-## Data Availability
-
-All datasets are version-controlled and included in the repository:
-
-- **Sequences**: Colored integer sequences for k=2,3,4 with various n values
-- **Graph6 format**: Binary graph representation for efficient storage
-- **Algebraic Connectivity**: Pre-computed CA values for all generated graphs
-
-For reproducing results from scratch, run the Jupyter notebook with appropriate parameters.
-
-## Contributors & Collaboration
-
-To contribute:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/your-feature`)
-3. Install development dependencies: `pip install -e ".[dev]"`
-4. Run tests and validation
-5. Submit a pull request
-
-**Important**: Ensure any new code passes the validation tests in `notebooks/` to prevent regressions.
-
-## Computational Limitations
-
-- **Memory**: Stream processing recommended for n > 28 (k=2)
-- **Time**: Expect ~16s per n for k=2 at maximum tested values
-- **Storage**: Databases grow exponentially; Git LFS recommended for future scaling
-
-## References
-
-The mathematical foundations follow work in:
-- Pereira's algorithm for k-path graph enumeration
-- Laplacian spectral analysis of graph connectivity
+If you plan to cite the theoretical basis of this implementation, add your preferred paper references here.
 
 ## License
 
-**⚠️ Pending decision** — Choose between MIT, GPL, or academic-specific license. To be defined before public release.
-
-## Acknowledgments
-
-Built as part of PhD research in graph optimization and spectral analysis.
-
----
-
-**Last Updated**: March 19, 2026  
-**Status**: Active Development (Phase 5 - Refactoring)
+License definition is pending.
