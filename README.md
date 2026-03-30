@@ -1,18 +1,18 @@
 # k-path-graphs-toolkit
 
-Toolkit de Grafos k-Caminhos: Gerador e Analisador.
+K-Path Graphs Toolkit: generator and analyzer for unlabeled k-path graphs.
 
-Este repositorio contem uma implementacao para gerar grafos k-caminhos nao rotulados e dois a dois nao isomorfos, exporta-los em formato Graph6 e calcular a conectividade algebrica de cada grafo gerado.
+This repository contains code to generate pairwise non-isomorphic unlabeled k-path graphs, convert them to Graph6 format, and analyze their algebraic connectivity. The implementation is organized as a reproducible scientific pipeline focused on large-scale generation with stream-based processing.
 
-O projeto esta organizado como um pipeline reprodutivel:
+## What This Project Does
 
-1. Gerar sequencias coloridas canonicas para `(k, n)` fixos.
-2. Converter as sequencias em grafos e exportar para `.g6`.
-3. Calcular a conectividade algebrica (`lambda_2`) de cada grafo.
+1. Generates canonical colored sequences for fixed `(k, n)`.
+2. Converts sequences to graph instances and exports `.g6` files.
+3. Computes algebraic connectivity (`lambda_2`) and summary tables.
 
-## Fundamentacao Matematica
+## Mathematical Basis
 
-As funcoes de contagem sao baseadas em relacoes recursivas usadas na enumeracao de grafos k-caminhos nao rotulados:
+The counting functions are based on the following recurrences:
 
 ```text
 M(n,k) = k*M(n-2,k) + M(n-3,k-1) + M(n-4,k-2)
@@ -21,47 +21,75 @@ N(n,k) = k^2*N(n-2,k) + (2k-1)*N(n-3,k-1) + N(n-4,k-2)
 T(n,k) = T(n-1,k-1) + M(n,k) + N(n,k)
 ```
 
-`T(n,k)` e usado como referencia de validacao durante a geracao e a conversao.
+`T(n,k)` is used as an internal consistency target during generation and conversion.
 
-## Estrutura do Repositorio
+## Tracked Repository Structure
+
+The current Git-tracked source files are:
 
 ```text
-src/
-  generators.py          geracao de sequencias (modo lista e stream)
-  converters.py          conversao TXT -> Graph6
-  analyzers.py           calculo de conectividade algebrica
-  paths.py               caminhos padrao de saida
-
-notebooks/
-  generate_and_analyze_k_path_graphs.ipynb
-
-data/
-  sequences/
-  g6/
-  algebraic_connectivity/
+.gitignore
+README.md
+pyproject.toml
+requirements.txt
+run_special_sequence_generation.py
+setup.py
+notebooks/generate_and_analyze_k_path_graphs.ipynb
+src/__init__.py
+src/generators.py
+src/converters.py
+src/analyzers.py
+src/paths.py
 ```
 
-## Instalacao
+Runtime data outputs are written under `data/` when you execute the notebook or scripts.
+
+## Installation
 
 ```bash
-git clone <url-do-repositorio>
+git clone <repository-url>
 cd k-path-graphs-toolkit
 
 python3 -m venv venv_grafos
 source venv_grafos/bin/activate
 
+pip install -e .
+
+# Optional: install pinned runtime dependencies directly
 pip install -r requirements.txt
 ```
 
-## Uso
+## Main Workflow
 
-O fluxo principal reprodutivel esta disponivel em:
+The main reproducible workflow is provided in:
 
 `notebooks/generate_and_analyze_k_path_graphs.ipynb`
 
-O notebook esta configurado para execucao iterativa (com logica de `skip`), permitindo retomar execucoes parcialmente concluidas.
+The notebook is iterative and uses skip logic, so partially completed runs can be resumed safely.
 
-## Exemplo Programatico
+## Special Batch Script
+
+This repository also includes a dedicated batch script for sequence generation with fixed limits:
+
+- `k=2`: `n=6..26`
+- `k=3`: `n=8..20`
+- `k=4`: `n=10..18`
+
+Script:
+
+`run_special_sequence_generation.py`
+
+Usage:
+
+```bash
+python run_special_sequence_generation.py --dry-run
+python run_special_sequence_generation.py
+python run_special_sequence_generation.py --force
+```
+
+The script skips existing files by default and performs an internal assertion (`expected == observed`) for each generated case.
+
+## Programmatic Example
 
 ```python
 from src.generators import T_n_k, gerarSequenciaN_stream
@@ -71,38 +99,30 @@ from src.analyzers import verify_algebraic_connectivity_one_stream
 k = 2
 n = 10
 
-esperado = int(T_n_k(n, k))
-print(f"Objetos esperados para (n={n}, k={k}): {esperado}")
+expected = int(T_n_k(n, k))
+print(f"Expected objects for (n={n}, k={k}): {expected}")
 
-# 1) geracao de sequencias
+# 1) Sequence generation
 gerarSequenciaN_stream(n, k, "data/sequences/2_caminhos")
 
-# 2) conversao para Graph6
+# 2) Graph6 conversion
 generateOneG6_stream(n, k, "data/sequences", "data/g6")
 
-# 3) conectividade algebrica
+# 3) Algebraic connectivity
 verify_algebraic_connectivity_one_stream(n, k, "data/g6", "data/algebraic_connectivity")
 ```
 
-## Arquivos de Saida
+## Output Files
 
-- Sequencias: `data/sequences/{k}_caminhos/{k}_caminhos_n_{n}_T_{T}.txt`
+- Sequences: `data/sequences/{k}_caminhos/{k}_caminhos_n_{n}_T_{T}.txt`
 - Graph6: `data/g6/{k}_caminhos_g6/{k}_caminhos_n_{n}_T_{T}.g6`
-- Conectividade algebrica: `data/algebraic_connectivity/CA_{k}_path_graph/ca_n_{n}.txt`
-- Listas consolidadas: `data/algebraic_connectivity/{k}_CA_lista.txt`
+- Algebraic connectivity: `data/algebraic_connectivity/CA_{k}_path_graph/{k}_CAs_n_{n}.txt`
+- Consolidated lists: `data/algebraic_connectivity/{k}_CA_lista.txt`
 
-## Observacoes de Desempenho
+## Available Link
 
-- As funcoes em modo stream sao recomendadas para valores grandes de `n`.
-- Tempo de execucao e armazenamento crescem rapidamente com `n`, especialmente para `k=2` em ordens maiores.
-- O fluxo do notebook foi desenhado para evitar recomputacao de saidas existentes.
+- Graph6 format reference: http://users.cecs.anu.edu.au/~bdm/data/formats.html
 
-## Referencias e Links Uteis
+## License
 
-- Referencia do formato Graph6: http://users.cecs.anu.edu.au/~bdm/data/formats.html
-
-Se voce pretende citar a base teorica desta implementacao, adicione aqui as referencias do artigo desejado.
-
-## Licenca
-
-A definicao da licenca esta pendente.
+License definition is pending.

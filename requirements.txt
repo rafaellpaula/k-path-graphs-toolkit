@@ -1,0 +1,8 @@
+numpy>=2.0
+networkx>=3.6
+graphviz>=0.21
+matplotlib>=3.10
+scipy>=1.17
+jupyter>=1.1
+ipython>=9.0
+ipykernel>=7.0
