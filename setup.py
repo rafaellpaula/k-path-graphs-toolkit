@@ -3,10 +3,10 @@ from setuptools import setup, find_packages
 setup(
     name="k-path-graphs-toolkit",
     version="0.1.0",
-    description="Toolkit for generating, converting, and analyzing unlabeled k-path graphs, including Graph6 export and algebraic connectivity computation.",
+    description="Toolkit para gerar, converter e analisar grafos k-caminhos nao rotulados, incluindo exportacao Graph6 e calculo de conectividade algebrica.",
     author="Rafael",
     author_email="",
-    license="Pending",
+    license="Pendente",
     packages=find_packages(),
     install_requires=[
         "numpy>=2.0",
@@ -29,7 +29,7 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
     ],
-    keywords="graph theory path graphs algebraic connectivity optimization",
+    keywords="teoria dos grafos grafos de caminhos conectividade algebrica otimizacao",
     project_urls={
         "Documentation": "https://github.com/",
         "Source": "https://github.com/",

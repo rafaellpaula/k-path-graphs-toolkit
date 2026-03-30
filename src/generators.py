@@ -58,7 +58,7 @@ def step2_C(sequenciaA: list[int], sequenciaB: list[int]):
 
 def nomalizado(sequencia: list[int]):
     if sequencia[0] == 1:
-        for i in range(1, len(sequencia[1:])):
+        for i in range(1, len(sequencia)):
             if sequencia[i] <= 1 + max(sequencia[:i]):
                 pass
             else:
@@ -135,6 +135,7 @@ def iter_unlabeled_k_path_graph_sequences(k: int, n: int):
         return
 
     yielded = 0
+    seen = {tuple(sequencia)}
     yield sequencia.copy()
     yielded += 1
 
@@ -147,6 +148,11 @@ def iter_unlabeled_k_path_graph_sequences(k: int, n: int):
         sequenciaReversa = step2_B(sequencia)
 
         if step2_C(sequencia, sequenciaReversa):
+            novo = tuple(sequencia)
+            if novo in seen:
+                break
+
+            seen.add(novo)
             yield sequencia.copy()
             yielded += 1
 

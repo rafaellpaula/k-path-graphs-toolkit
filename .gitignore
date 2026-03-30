@@ -1,4 +1,4 @@
-# Environment
+# Ambientes
 venv_grafos/
 venv/
 env/
@@ -45,30 +45,31 @@ MANIFEST
 .notebook_checkpoints/
 notebook_checkpoints/
 
-# Analysis
+# Análises
 *.json
 *.log
 .pytest_cache/
 htmlcov/
 
-# OS
+# Sistema Operacional
 .DS_Store
 Thumbs.db
 
-#Others
+# Outros
 *.txt
+!requirements.txt
 *.g6
 *.md
 !README.md
 
-# Avoid committing lock files unless essential
+# Evite versionar arquivos de lock, exceto quando for essencial
 # poetry.lock
 # Pipfile.lock
 
-# Keep data files (git will track them if added)
-# data/ should be committed by default
+# Arquivos de dados podem ser versionados se necessário
+# data/ pode ser commitado por padrão
 
-# Legacy compatibility code based on src_fase2
+# Código legado de compatibilidade baseado em src_fase2
 src_fase2/
 construct_2_3_4_path_graphs_copia_17-03-26.ipynb
 construct_2_3_4_path_graphs.ipynb
