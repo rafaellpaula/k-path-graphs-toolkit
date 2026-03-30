@@ -1,0 +1,74 @@
+# Environment
+venv_grafos/
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.sublime-project
+.sublime-workspace
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Jupyter
+.ipynb_checkpoints/
+.notebook_checkpoints/
+notebook_checkpoints/
+
+# Analysis
+*.json
+*.log
+.pytest_cache/
+htmlcov/
+
+# OS
+.DS_Store
+Thumbs.db
+
+#Others
+*.txt
+*.g6
+*.md
+!README.md
+
+# Avoid committing lock files unless essential
+# poetry.lock
+# Pipfile.lock
+
+# Keep data files (git will track them if added)
+# data/ should be committed by default
+
+# Legacy compatibility code based on src_fase2
+src_fase2/
+construct_2_3_4_path_graphs_copia_17-03-26.ipynb
+construct_2_3_4_path_graphs.ipynb

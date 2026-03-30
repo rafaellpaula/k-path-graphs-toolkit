@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "k-path-graphs-toolkit"
+version = "0.1.0"
+description = "Toolkit for generating, converting, and analyzing unlabeled k-path graphs, including Graph6 export and algebraic connectivity computation."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Pending"}
+authors = [
+    {name = "Rafael", email = ""}
+]
+keywords = ["graph-theory", "path-graphs", "algebraic-connectivity", "optimization"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: Other/Proprietary License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "numpy>=2.0",
+    "networkx>=3.6",
+    "graphviz>=0.21",
+    "matplotlib>=3.10",
+    "scipy>=1.17",
+]
+
+[project.optional-dependencies]
+jupyter = ["jupyter>=1.1", "ipython>=9.0", "ipykernel>=7.0"]
+dev = ["pytest", "black", "pylint"]
+
+[project.urls]
+Documentation = "https://github.com/"
+Source = "https://github.com/"
